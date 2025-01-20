@@ -16,7 +16,7 @@ async function showFilesInfo() {
         const fileExtension = path.extname(pathToFile).slice(1);
 
         let file = await stat(pathToFile);
-        let fileSize = file.size;
+        let fileSize = (file.size / 1024).toFixed(3);
 
         console.log(`${fileName} - ${fileExtension} - ${fileSize}kb`);
       }
