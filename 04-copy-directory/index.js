@@ -10,28 +10,6 @@ async function copyDir() {
   });
 
   try {
-    // const copyFolderEntries = await fsPromises.rm(pathToCopyFolder, {
-    //   recursive: true,
-    // });
-
-    // const copyFolder = await fsPromises.mkdir(pathToCopyFolder, {
-    //   recursive: true,
-    // });
-
-    // const entries = await fsPromises
-    //   .readdir(pathToInitialFolder)
-    //   .then((files) => {
-    //     files.forEach(async (fileName) => {
-    //       const srcFile = path.join(pathToInitialFolder, fileName);
-
-    //       const destFile = path.join(pathToCopyFolder, fileName);
-
-    //       await fsPromises.copyFile(srcFile, destFile);
-    //     });
-    //   });
-
-    // ------------
-
     const copyFolderEntries = await fsPromises.readdir(pathToCopyFolder);
 
     for (let fileName of copyFolderEntries) {
