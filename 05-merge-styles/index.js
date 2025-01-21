@@ -20,7 +20,9 @@ async function mergeStyles() {
 
     if (path.extname(pathToFile) === '.css') {
       const readStream = fs.createReadStream(pathToFile, 'utf-8');
-      readStream.on('data', (chunk) => writeStream.write(chunk.toString()));
+      readStream.on('data', (chunk) =>
+        writeStream.write(`\n${chunk.toString()}`),
+      );
     }
   }
 }
