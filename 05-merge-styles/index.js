@@ -1,6 +1,7 @@
 const fsPromises = require('fs/promises');
 const fs = require('fs');
 const path = require('path');
+const { EOL: eol } = require('os');
 
 async function mergeStyles() {
   const stylesFolderPath = path.join(__dirname, 'styles');
@@ -21,7 +22,7 @@ async function mergeStyles() {
     if (path.extname(pathToFile) === '.css') {
       const readStream = fs.createReadStream(pathToFile, 'utf-8');
       readStream.on('data', (chunk) =>
-        writeStream.write(`\n${chunk.toString()}`),
+        writeStream.write(`${eol}${chunk.toString()}`),
       );
     }
   }
