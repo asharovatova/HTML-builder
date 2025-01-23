@@ -1,11 +1,13 @@
 const fsPromises = require('fs/promises');
 const fs = require('fs');
 const path = require('path');
+const os = require('node:os');
 
 const componentsPath = path.join(__dirname, 'components');
 const assetsPath = path.join(__dirname, 'assets');
 const destFolderPath = path.join(__dirname, 'project-dist');
 const destAssetsPath = path.join(destFolderPath, 'assets');
+const eol = os.EOL;
 
 async function buildPage() {
   const templatePath = path.join(__dirname, 'template.html');
@@ -25,9 +27,13 @@ async function buildPage() {
     });
   }
 
-  const destFolder = await fsPromises.mkdir(destFolderPath, {
-    recursive: true,
-  });
+  try {
+    const destFolder = await fsPromises.mkdir(destFolderPath, {
+      recursive: true,
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
 
   const destIndexPath = path.join(destFolderPath, 'index.html');
   const writeStream = fs.createWriteStream(destIndexPath);
@@ -48,7 +54,7 @@ async function replaceTags(str) {
   for (let name of componentsNames) {
     const componentContent = await getComponentContent(name);
 
-    html = html.replaceAll(`{{${name}}}`, `\n${componentContent}`);
+    html = html.replaceAll(`{{${name}}}`, `${eol}${componentContent}`);
   }
 
   return html;
@@ -103,16 +109,20 @@ async function mergeStyles() {
     if (path.extname(pathToFile) === '.css') {
       const readStream = fs.createReadStream(pathToFile, 'utf-8');
       readStream.on('data', (chunk) =>
-        writeStream.write(`\n${chunk.toString()}`),
+        writeStream.write(`${eol}${chunk.toString()}`),
       );
     }
   }
 }
 
 async function copyDir(initFolderPath, copyFolderPath) {
-  const copyFolder = await fsPromises.mkdir(copyFolderPath, {
-    recursive: true,
-  });
+  try {
+    const copyFolder = await fsPromises.mkdir(copyFolderPath, {
+      recursive: true,
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
 
   try {
     const entries = await fsPromises.readdir(initFolderPath, {
@@ -120,14 +130,13 @@ async function copyDir(initFolderPath, copyFolderPath) {
     });
 
     for (let entry of entries) {
+      const srcPath = path.join(initFolderPath, entry.name);
+      const destPath = path.join(copyFolderPath, entry.name);
+
       if (entry.isFile()) {
-        const srcFile = path.join(initFolderPath, entry.name);
-        const destFile = path.join(copyFolderPath, entry.name);
-        await fsPromises.copyFile(srcFile, destFile);
+        await fsPromises.copyFile(srcPath, destPath);
       } else if (entry.isDirectory()) {
-        const srcPath = path.join(initFolderPath, entry.name);
-        const destPath = path.join(copyFolderPath, entry.name);
-        copyDir(srcPath, destPath);
+        await copyDir(srcPath, destPath);
       }
     }
   } catch (error) {
